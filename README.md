@@ -150,3 +150,48 @@ foo $( < > ) bar " ' \ |
 $ mquote ssh 127.0.0.1 echo foo ``{2}$( < > )`` bar ``{2}" ' \ |``
 foo $( < > ) bar " ' \ |
 ~~~
+
+# set-x
+
+Quite often I need to turn on `set -x` to debug something:
+
+~~~
+$ set -x
+$ do something
+$ set +x
+
+# or
+
+$ set -x; do something; set +x
+~~~
+
+With `set-x` you can just `set-x do something`. For example:
+
+~~~
+$ sum=0; for ((i=1; i<=5; ++i)); do ((sum += i)); done; echo $sum
+15
+$ set-x sum=0; for ((i=1; i<=5; ++i)); do ((sum += i)); done; echo $sum
++ eval 'sum=0; for ((i=1; i<=5; ++i)); do ((sum += i)); done; echo $sum'
+++ sum=0
+++ (( i=1 ))
+++ (( i<=5 ))
+++ (( sum += i ))
+++ (( ++i ))
+++ (( i<=5 ))
+++ (( sum += i ))
+++ (( ++i ))
+++ (( i<=5 ))
+++ (( sum += i ))
+++ (( ++i ))
+++ (( i<=5 ))
+++ (( sum += i ))
+++ (( ++i ))
+++ (( i<=5 ))
+++ (( sum += i ))
+++ (( ++i ))
+++ (( i<=5 ))
+++ echo 15
+15
++ set 0
++ set +x
+~~~
