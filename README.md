@@ -28,7 +28,9 @@ mquote [-dnpv] ...
 * With Bash `4.4+`, `mquote` uses `${var@Q}` for quoting by default.
 * In the following examples which use `ssh`, we assume the remote shell is also Bash.
 
-## Example 1: Quote a whole command
+## Examples
+
+### Example 1: Quote a whole command
 
 Say we have this demo command:
 
@@ -62,7 +64,7 @@ $ ssh 127.0.0.1 "$cmd"
 333
 ~~~
 
-## Example 2: Pass a verbatim command through ssh
+### Example 2: Pass a verbatim command through ssh
 
 Still using this example:
 
@@ -99,7 +101,7 @@ $ mquote -n -p ssh 127.0.0.1 ``echo '111"222' | awk -F\" '{ print $1 + $2 }'``
 >>> ssh 127.0.0.1 echo\ \'111\"222\'\ \|\ awk\ -F\\\"\ \'\{\ print\ \$1\ +\ \$2\ \}\'
 ~~~
 
-## Example 3: Pass a verbatim command through nested ssh
+### Example 3: Pass a verbatim command through nested ssh
 
 ~~~
 $ echo '111"222' | awk -F\" '{ print $1 + $2 }'
@@ -123,7 +125,7 @@ $ mquote ssh 127.0.0.1 ssh 127.0.0.1 ssh 127.0.0.1 ``{3}echo '111"222' | awk -F\
 
 And ``` ``{1}..`` ``` is the same as ``` ``..`` ```.
 
-## Example 4: Quote parameters for commands
+### Example 4: Quote parameters for commands
 
 Say we want to write an `echo` command which outputs `" ' # $( < > \ | )`. Just enclose it with ``` ``..`` ```:
 
@@ -142,13 +144,38 @@ $ mquote ssh 127.0.0.1 ssh 127.0.0.1 echo ``{3}" ' # $( < > \ | )``
 " ' # $( < > \ | )
 ~~~
 
-## Example 5: Multiple ``` ``..`` ``` in one command
+### Example 5: Multiple ``` ``..`` ``` in one command
 
 ~~~
 $ mquote echo foo ``$( < > )`` bar ``" ' \ |``
 foo $( < > ) bar " ' \ |
 $ mquote ssh 127.0.0.1 echo foo ``{2}$( < > )`` bar ``{2}" ' \ |``
 foo $( < > ) bar " ' \ |
+~~~
+
+### Example 6: It's never been so easy to write one-liners!
+
+People often write `sed/awk/perl/...` one-liners and it's error-prone when quoting the
+script part (usually `-e ...` or `-c ...`) in shell. With `mquote`, you can focus on
+the util/language's script itself without worrying about shell quoting.
+
+~~~
+$ mquote perl -e ``print '"', "'", "\n"``
+"'
+$ mquote echo | sed -e ``s/.*/"'/``
+"'
+$ mquote awk ``BEGIN { print "\"" "'" }`` /dev/null
+"'
+$ mquote python3 -c ``print('"\'')``
+"'
+$ mquote perl -e ``print '"', "'", "\n"``
+"'
+$ mquote lua -e ``print("\"'")``
+"'
+$ mquote sh -c ``echo "\"'"``
+"'
+$ mquote echo | vim -u NONE -es ``+s/.*/"'/ | p | q!`` /dev/stdin
+"'
 ~~~
 
 # set-x
