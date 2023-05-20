@@ -3,13 +3,31 @@
 #
 # Author: Clark Wang <dearvoid at gmail.com>
 
+# _uplevel [-u "var1 var2 ..."] "cmd .." [args ..]
+function _uplevel()
+{
+    if [[ $1 == '-u' ]]; then
+        unset -v -- $2 || return
+        shift 2
+    fi
+
+    eval "shift; $1"
+}
+
 function _magic_quote()
 {
-    local major minor bash44=0
-    local use_printf=0 use_declare=0 no_run=0 verbose=0 sep='``'
-    local cmd pat
-    local -a arr
-    local i s opt iter
+    local -a locals=( locals \
+                      major minor bash44 \
+                      no_run use_declare use_printf verbose \
+                      arr cmd opt pat sep iter \
+                      i s )
+    ###=1=###
+    local ${locals[@]}
+
+    use_printf=0 use_declare=0 no_run=0 verbose=0
+    bash44=0
+    sep='``'
+    arr=()
 
     major=${BASH_VERSINFO[0]}
     minor=${BASH_VERSINFO[1]}
@@ -97,7 +115,7 @@ function _magic_quote()
         printf '>>> %s\n' "$cmd" >&2
     fi
     if (( ! no_run )); then
-        eval -- "$cmd"
+        _uplevel -u "${locals[*]}" "$cmd"
     fi
 }
 
