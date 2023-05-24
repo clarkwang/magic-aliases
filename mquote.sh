@@ -98,13 +98,13 @@ function _magic_quote()
                 iter=1
             fi
             for (( ; iter; --iter)); do
-                if (( use_declare )); then
-                    s=$( declare -p s )
-                    s=${s#*=}
-                elif (( bash44 && ! use_printf )); then
+                if (( use_printf )); then
+                    s=$( printf '%q' "$s" )
+                elif (( bash44 && ! use_declare )); then
                     s=${s@Q}
                 else
-                    s=$( printf '%q' "$s" )
+                    s=$( declare -p s )
+                    s=${s#*=}
                 fi
             done
         fi
