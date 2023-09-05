@@ -15,8 +15,8 @@
 mquote [-dnpv] ...
 
   -d    Use "declare -p" for quoting.
-  -n    Only print the command after quoting without executing it. This is
-        implicit if there is no ``..`` in the argument.
+  -n    No run. Only print the command after quoting without executing it.
+        This is implicit if there is no ``..`` in the argument.
   -p    Use "printf %q" for quoting.
   -v    Verbose. Print the command before execution.
 ~~~
@@ -160,21 +160,15 @@ script part (usually `-e ...` or `-c ...`) in shell. With `mquote`, you can focu
 the util/language's script itself without worrying about shell quoting.
 
 ~~~
-$ mquote perl -e ``print '"', "'", "\n"``
-"'
 $ mquote echo | sed -e ``s/.*/"'/``
 "'
 $ mquote awk ``BEGIN { print "\"" "'" }`` /dev/null
 "'
+$ mquote sh -c ``echo "\"'"``
+"'
 $ mquote python3 -c ``print('"\'')``
 "'
 $ mquote perl -e ``print '"', "'", "\n"``
-"'
-$ mquote lua -e ``print("\"'")``
-"'
-$ mquote sh -c ``echo "\"'"``
-"'
-$ mquote echo | vim -u NONE -es ``+s/.*/"'/ | p | q!`` /dev/stdin
 "'
 ~~~
 
