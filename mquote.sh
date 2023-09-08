@@ -86,8 +86,8 @@ function _magic_quote()
     fi
 
     cmd=''
-    pat='^[{]([1-9])[}](.*)$'
-    #        (1    )   (2 )
+    pat='^[{]([0-9]+)[}](.*)$'
+    #        (1     )   (2 )
     for ((i = 0; i < ${#arr[@]}; ++i)); do
         s=${arr[i]}
         if (( i % 2 == 1 )); then
@@ -96,6 +96,10 @@ function _magic_quote()
                 s=${BASH_REMATCH[2]}
             else
                 iter=1
+            fi
+            if (( iter > 9 )); then
+                printf "!!! %s\n" "n must be < 10 for $sep{n}..$sep" >&2
+                return 1
             fi
             for (( ; iter; --iter)); do
                 if (( use_printf )); then
