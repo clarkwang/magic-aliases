@@ -43,13 +43,13 @@ How should the command be quoted if we want to define it as an alias? Just pass 
 
 ~~~
 $ mquote echo '111"222' | awk -F\" '{ print $1 + $2 }'
->>> echo\ \'111\"222\'' | awk -F\" '\''{ print $1 + $2 }'\'
+>>> echo" '111\"222' | awk -F\\\" '{ print \$1 + \$2 }'"
 ~~~
 
 Then, copy-n-paste the output to the `alias` command:
 
 ~~~
-$ alias foo=echo\ \'111\"222\'' | awk -F\" '\''{ print $1 + $2 }'\'
+$ alias foo=echo" '111\"222' | awk -F\\\" '{ print \$1 + \$2 }'"
 $ foo
 333
 ~~~
@@ -57,7 +57,7 @@ $ foo
 Or you can copy-n-paste the `mquote` output to a var assignment:
 
 ~~~
-$ cmd=echo\ \'111\"222\'' | awk -F\" '\''{ print $1 + $2 }'\'
+$ cmd=echo" '111\"222' | awk -F\\\" '{ print \$1 + \$2 }'"
 $ eval "$cmd"
 333
 $ ssh 127.0.0.1 "$cmd"
@@ -94,7 +94,7 @@ With `-n` (no run) it'll only print the command without executing it:
 
 ~~~
 $ mquote -n ssh 127.0.0.1 ``echo '111"222' | awk -F\" '{ print $1 + $2 }'``
->>> ssh 127.0.0.1 echo\ \'111\"222\'' | awk -F\" '\''{ print $1 + $2 }'\'
+>>> ssh 127.0.0.1 echo" '111\"222' | awk -F\\\" '{ print \$1 + \$2 }'"
 $ mquote -n -d ssh 127.0.0.1 ``echo '111"222' | awk -F\" '{ print $1 + $2 }'``
 >>> ssh 127.0.0.1 "echo '111\"222' | awk -F\\\" '{ print \$1 + \$2 }'"
 $ mquote -n -p ssh 127.0.0.1 ``echo '111"222' | awk -F\" '{ print $1 + $2 }'``
@@ -113,8 +113,8 @@ $ echo '111"222' | awk -F\" '{ print $1 + $2 }'
 To run the above command with 2 level nested ssh (`ssh host1 ssh host2 ...`), we can use the ``` ``{2}..`` ``` syntax:
 
 ~~~
-$ mquote -vd ssh 127.0.0.1 ssh 127.0.0.1 ``{2}echo '111"222' | awk -F\" '{ print $1 + $2 }'``
->>> ssh 127.0.0.1 ssh 127.0.0.1 "\"echo '111\\\"222' | awk -F\\\\\\\" '{ print \\\$1 + \\\$2 }'\""
+$ mquote -v ssh 127.0.0.1 ssh 127.0.0.1 ``{2}echo '111"222' | awk -F\" '{ print $1 + $2 }'``
+>>> ssh 127.0.0.1 ssh 127.0.0.1 echo'" '\'111'\"222'\'' | awk -F\\\" '\''{ print \$1 + \$2 }'\'\"
 333
 ~~~
 

@@ -56,13 +56,33 @@ function _quote()
 
                 # "''.. + !
             elif [[ $ch == '!' ]]; then
-                ret+='"\!'
+                ret+='"'
                 left_quote=''
+                (( i-- ))
 
                 # "''.. + {x,'}
             else
                 ret+="$ch"
             fi
+
+            # .. + x
+        elif [[ $ch == $safe_pat ]]; then
+            ret+="$ch"
+
+            # no more chars
+        elif [[ -z $ch2 ]]; then
+            # .. + <space><END>
+            if [[ $ch == ' ' ]]; then
+                # We don't want the final result to end with <space> which
+                # is not copy-n-paste friendly.
+                ret+="' '"
+
+                # .. + ^<END>
+            else
+                ret+="\\$ch"
+            fi
+
+            # .. + '
         elif [[ $ch == \' ]]; then
             # .. + ''
             if [[ $ch2 == \' ]]; then
@@ -74,22 +94,20 @@ function _quote()
                 ret+="\\'"
             fi
 
-            # .. + x
-        elif [[ $ch == $safe_pat ]]; then
-            ret+="$ch"
+            # .. + ^'
+        elif [[ $ch != \! && $ch != $dq_pat && $ch2 == \' ]]; then
+            ret+="\"$ch"
+            left_quote=\"
 
-            # .. + $$
-        elif [[ -n $ch2 && $ch2 != \' && $ch2 != $safe_pat ]]; then
+            # .. + ^^
+            # .. + !^
+            # .. + !!
+        elif [[ $ch2 != \' && $ch2 != $safe_pat ]]; then
             ret+="'$ch"
             left_quote="'"
 
-            # .. + <space>
-        elif [[ $ch == ' ' && -z $ch2 ]]; then
-            # We don't want the final result to be end with <space> which
-            # is not copy-n-paste friendly.
-            ret+="' '"
-
-            # .. + $x
+            # .. + ^x
+            # .. + !x
         else
             ret+="\\$ch"
         fi
