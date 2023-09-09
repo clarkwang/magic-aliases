@@ -12,12 +12,13 @@
 ## Usage
 
 ~~~
-mquote [-dnpv] ...
+mquote [-dnpQv] ...
 
   -d    Use "declare -p" for quoting.
   -n    No run. Only print the command after quoting without executing it.
         This is implicit if there is no ``..`` in the argument.
   -p    Use "printf %q" for quoting.
+  -Q    Use "${var@Q}" for quoting. This requires Bash 4.4+.
   -v    Verbose. Print the command before execution.
 ~~~
 
@@ -25,7 +26,6 @@ mquote [-dnpv] ...
 
 * The `mquote` alias only works in ***interactive*** Bash shell.
 * Bash `3.2+` is required.
-* With Bash `4.4+`, `mquote` uses `${var@Q}` for quoting by default.
 * In the following examples which use `ssh`, we assume the remote shell is also Bash.
 
 ## Examples
@@ -43,13 +43,13 @@ How should the command be quoted if we want to define it as an alias? Just pass 
 
 ~~~
 $ mquote echo '111"222' | awk -F\" '{ print $1 + $2 }'
->>> 'echo '\''111"222'\'' | awk -F\" '\''{ print $1 + $2 }'\'''
+>>> echo\ \'111\"222\'' | awk -F\" '\''{ print $1 + $2 }'\'
 ~~~
 
 Then, copy-n-paste the output to the `alias` command:
 
 ~~~
-$ alias foo='echo '\''111"222'\'' | awk -F\" '\''{ print $1 + $2 }'\'''
+$ alias foo=echo\ \'111\"222\'' | awk -F\" '\''{ print $1 + $2 }'\'
 $ foo
 333
 ~~~
@@ -57,7 +57,7 @@ $ foo
 Or you can copy-n-paste the `mquote` output to a var assignment:
 
 ~~~
-$ cmd='echo '\''111"222'\'' | awk -F\" '\''{ print $1 + $2 }'\'''
+$ cmd=echo\ \'111\"222\'' | awk -F\" '\''{ print $1 + $2 }'\'
 $ eval "$cmd"
 333
 $ ssh 127.0.0.1 "$cmd"
@@ -86,7 +86,7 @@ With `-v` (verbose) we can see the real command after quoting:
 
 ~~~
 $ mquote -v ssh 127.0.0.1 ``echo '111"222' | awk -F\" '{ print $1 + $2 }'``
->>> ssh 127.0.0.1 'echo '\''111"222'\'' | awk -F\" '\''{ print $1 + $2 }'\'''
+>>> ssh 127.0.0.1 echo\ \'111\"222\'' | awk -F\" '\''{ print $1 + $2 }'\'
 333
 ~~~
 
@@ -94,11 +94,13 @@ With `-n` (no run) it'll only print the command without executing it:
 
 ~~~
 $ mquote -n ssh 127.0.0.1 ``echo '111"222' | awk -F\" '{ print $1 + $2 }'``
->>> ssh 127.0.0.1 'echo '\''111"222'\'' | awk -F\" '\''{ print $1 + $2 }'\'''
+>>> ssh 127.0.0.1 echo\ \'111\"222\'' | awk -F\" '\''{ print $1 + $2 }'\'
 $ mquote -n -d ssh 127.0.0.1 ``echo '111"222' | awk -F\" '{ print $1 + $2 }'``
 >>> ssh 127.0.0.1 "echo '111\"222' | awk -F\\\" '{ print \$1 + \$2 }'"
 $ mquote -n -p ssh 127.0.0.1 ``echo '111"222' | awk -F\" '{ print $1 + $2 }'``
 >>> ssh 127.0.0.1 echo\ \'111\"222\'\ \|\ awk\ -F\\\"\ \'\{\ print\ \$1\ +\ \$2\ \}\'
+$ mquote -n -Q ssh 127.0.0.1 ``echo '111"222' | awk -F\" '{ print $1 + $2 }'``
+>>> ssh 127.0.0.1 'echo '\''111"222'\'' | awk -F\" '\''{ print $1 + $2 }'\'''
 ~~~
 
 ### Example 3: Pass a verbatim command through nested ssh
