@@ -18,7 +18,8 @@ function _quote()
 {
     local str i ch ch2 ret
     local safe_pat='@([-+=%@:,./[:word:]])'
-    local dq_pat='@([\\"`$])'
+    local dq_needsEsc='@([\\"`$])'
+    local dq_safe='@([^\\!"`$])'
     local left_quote=''
 
     str="$2"
@@ -36,7 +37,6 @@ function _quote()
 
         # '..
         if [[ $left_quote == \' ]]; then
-
             # '.. + '
             if [[ $ch == \' ]]; then
                 ret+="'\\'"
@@ -49,16 +49,16 @@ function _quote()
 
             # "''..
         elif [[ $left_quote == \" ]]; then
-            # "''.. + $
-            if [[ $ch == $dq_pat ]]; then
-                # All attempts to optimize this have failed. DO NOT TRY!
-                ret+="\\$ch"
-
-                # "''.. + !
-            elif [[ $ch == '!' ]]; then
+            # "''.. + !
+            if [[ $ch == '!' ]]; then
                 ret+='"'
                 left_quote=''
                 (( i-- ))
+
+                # "''.. + $
+            elif [[ $ch == $dq_needsEsc ]]; then
+                # All attempts to optimize this have failed. DO NOT TRY!
+                ret+="\\$ch"
 
                 # "''.. + {x,'}
             else
@@ -95,7 +95,7 @@ function _quote()
             fi
 
             # .. + ^'
-        elif [[ $ch != \! && $ch != $dq_pat && $ch2 == \' ]]; then
+        elif [[ $ch2 == \' && $ch == $dq_safe ]]; then
             ret+="\"$ch"
             left_quote=\"
 
