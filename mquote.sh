@@ -94,20 +94,20 @@ function _quote()
                 ret+="\\'"
             fi
 
+            # .. + ^^
+            # .. + !^
+            # .. + !!
+        elif [[ $ch2 != \' ]]; then
+            ret+="'$ch"
+            left_quote="'"
+
             # .. + ^'
         elif [[ $ch2 == \' && $ch == $dq_safe ]]; then
             ret+="\"$ch"
             left_quote=\"
 
-            # .. + ^^
-            # .. + !^
-            # .. + !!
-        elif [[ $ch2 != \' && $ch2 != $safe_pat ]]; then
-            ret+="'$ch"
-            left_quote="'"
-
-            # .. + ^x
-            # .. + !x
+            # .. + $'
+            # .. + !'
         else
             ret+="\\$ch"
         fi
