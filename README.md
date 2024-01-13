@@ -24,8 +24,9 @@ mquote [-dnpQv] ...
 
 ## Note
 
-* The `mquote` alias only works in ***interactive*** Bash shell.
 * Bash `3.2+` is required.
+* The `mquote` alias only works in ***interactive*** Bash shell and command
+  history must be enabled (`set -o history`).
 * In the following examples which use `ssh`, we assume the remote shell is also Bash.
 
 ## Examples
